@@ -317,6 +317,7 @@ endif ()
 target_compile_definitions (libJUCE PUBLIC ${JUCE_MODULE_DEF})
 
 target_compile_definitions (libJUCE PRIVATE "JUCE_DLL_BUILD=1")
+target_compile_definitions (libJUCE PUBLIC "JUCE_DLL=1")
 if (MSVC)
 	target_compile_definitions (libJUCE PRIVATE "JUCE_DISABLE_DLL_ALLOCATORS=1")
 endif (MSVC)
