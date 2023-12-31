@@ -1,3 +1,0 @@
-﻿@PACKAGE_INIT@
-
-include("${CMAKE_CURRENT_LIST_DIR}/juce-host-dev-kitTargets.cmake")
