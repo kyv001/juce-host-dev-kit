@@ -45,9 +45,9 @@
 #if ! JUCE_DONT_DECLARE_PROJECTINFO
 namespace ProjectInfo
 {
-    const char* const  projectName    = "VocalShaper";
+    const char* const  projectName    = "juce-host-dev-kit";
     const char* const  companyName    = "VocalSharp Org.";
-    const char* const  versionString  = "0.0.1";
-    const int          versionNumber  = 0x00001;
+    const char* const  versionString  = "1.0.0";
+    const int          versionNumber  = 0x100000;
 }
 #endif
