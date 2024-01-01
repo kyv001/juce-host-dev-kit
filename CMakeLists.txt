@@ -17,6 +17,9 @@ if (MSVC)
 	add_compile_definitions ("_CRT_SECURE_NO_WARNINGS")
 endif (MSVC)
 
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 set (JUCE_INSTALL_NAME ${PROJECT_NAME})
 
 # ============================
@@ -456,9 +459,6 @@ endif (NOT MSVC)
 # ============================
 # Install
 # ============================
-include(GNUInstallDirs)
-include(CMakePackageConfigHelpers)
-
 set (JUCE_CMAKE_CONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${JUCE_INSTALL_NAME})
 
 install (TARGETS libJUCE
