@@ -33,6 +33,8 @@
 
 # IDE Temp
 .vs/**
+.idea/**
 
 # Output Directory
 [Oo]ut/**
+cmake-*/**

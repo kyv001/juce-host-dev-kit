@@ -246,21 +246,64 @@ set (JUCE_PRIVATE_INC_PATH
 # ============================
 # Target
 # ============================
-file (GLOB_RECURSE JUCE_SRC "${JUCE_HEADER_PATH}/*.cpp" "${JUCE_HEADER_PATH}/*.h")
-add_library (libJUCE SHARED ${JUCE_SRC} ${JUCE_LV2_SRC_FIX} ${JUCE_ARA_SRC_FIX} ${DMDA_SRC} ${MACKIE_SRC})
+set (JUCE_AUDIO_SRC
+		"${JUCE_HEADER_PATH}/JuceHeader.h"
+		"${JUCE_HEADER_PATH}/include_juce_audio_basics.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_audio_devices.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_audio_formats.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_audio_processors.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_audio_utils.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/AudioFix.cpp"
+)
+set (JUCE_CORE_SRC
+		"${JUCE_HEADER_PATH}/JuceHeader.h"
+		"${JUCE_HEADER_PATH}/include_juce_core.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_cryptography.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_gui_basics.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_gui_extra.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_events.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_data_structures.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_graphics.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_osc.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_box2d.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_opengl.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_analytics.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_product_unlocking.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_video.cpp"
+)
+set (JUCE_DSP_SRC
+		"${JUCE_HEADER_PATH}/JuceHeader.h"
+		"${JUCE_HEADER_PATH}/include_juce_dsp.cpp"
+)
+
+add_library (juce-audio SHARED ${JUCE_AUDIO_SRC} ${JUCE_LV2_SRC_FIX} ${JUCE_ARA_SRC_FIX} ${DMDA_SRC} ${MACKIE_SRC})
+add_library (juce-core SHARED ${JUCE_CORE_SRC})
+add_library (juce-dsp SHARED ${JUCE_DSP_SRC})
+
 set_source_files_properties ("${JUCE_HEADER_PATH}/JuceHeader.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 
-foreach (ITEM ${JUCE_PUBLIC_INC_PATH})
-	file (RELATIVE_PATH ITEM_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${ITEM})
-	target_include_directories(libJUCE PUBLIC
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${ITEM_PATH}>"
-        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${JUCE_INSTALL_NAME}/${ITEM_PATH}>"
-    )
-endforeach (ITEM ${JUCE_PUBLIC_INC_PATH})
-foreach (ITEM ${JUCE_PRIVATE_INC_PATH})
-	file (RELATIVE_PATH ITEM_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${ITEM})
-	target_include_directories (libJUCE PRIVATE ${ITEM_PATH})
-endforeach (ITEM ${JUCE_PRIVATE_INC_PATH})
+target_link_libraries (juce-audio PUBLIC juce-core)
+target_link_libraries (juce-dsp PUBLIC juce-audio)
+
+set (JUCE_TARGET_LIST
+	juce-audio
+	juce-core
+	juce-dsp
+)
+
+foreach (TARGET ${JUCE_TARGET_LIST})
+	foreach (ITEM ${JUCE_PUBLIC_INC_PATH})
+		file (RELATIVE_PATH ITEM_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${ITEM})
+		target_include_directories(${TARGET} PUBLIC
+			"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${ITEM_PATH}>"
+			"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${JUCE_INSTALL_NAME}/${ITEM_PATH}>"
+		)
+	endforeach (ITEM ${JUCE_PUBLIC_INC_PATH})
+	foreach (ITEM ${JUCE_PRIVATE_INC_PATH})
+		file (RELATIVE_PATH ITEM_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${ITEM})
+		target_include_directories (${TARGET} PRIVATE ${ITEM_PATH})
+	endforeach (ITEM ${JUCE_PRIVATE_INC_PATH})
+endforeach (TARGET ${JUCE_TARGET_LIST})
 
 # ============================
 # Definitions
@@ -323,44 +366,46 @@ set (JUCE_MODULE_DEF
 	"JUCE_USE_LAME_AUDIO_FORMAT=$<IF:$<BOOL:${JUCE_USE_LAME_AUDIO_FORMAT}>,1,0>"
 )
 
-if (CMAKE_BUILD_TYPE STREQUAL Debug)
-	target_compile_definitions (libJUCE PUBLIC ${JUCE_DEBUG_DEF})
-else (CMAKE_BUILD_TYPE STREQUAL Debug)
-	target_compile_definitions (libJUCE PUBLIC ${JUCE_NDEBUG_DEF})
-endif (CMAKE_BUILD_TYPE STREQUAL Debug)
+foreach (TARGET ${JUCE_TARGET_LIST})
+	if (CMAKE_BUILD_TYPE STREQUAL Debug)
+		target_compile_definitions (${TARGET} PUBLIC ${JUCE_DEBUG_DEF})
+	else (CMAKE_BUILD_TYPE STREQUAL Debug)
+		target_compile_definitions (${TARGET} PUBLIC ${JUCE_NDEBUG_DEF})
+	endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
-if (WIN32)
-	target_compile_definitions (libJUCE PUBLIC ${JUCE_WIN_DEF})
-elseif (UNIX AND NOT APPLE)
-	target_compile_definitions (libJUCE PUBLIC ${JUCE_LINUX_DEF})
-elseif (APPLE)
-	target_compile_definitions (libJUCE PUBLIC ${JUCE_OSX_DEF})
-endif ()
+	if (WIN32)
+		target_compile_definitions (${TARGET} PUBLIC ${JUCE_WIN_DEF})
+	elseif (UNIX AND NOT APPLE)
+		target_compile_definitions (${TARGET} PUBLIC ${JUCE_LINUX_DEF})
+	elseif (APPLE)
+		target_compile_definitions (${TARGET} PUBLIC ${JUCE_OSX_DEF})
+	endif ()
 
-target_compile_definitions (libJUCE PUBLIC ${JUCE_MODULE_DEF})
+	target_compile_definitions (${TARGET} PUBLIC ${JUCE_MODULE_DEF})
 
-target_compile_definitions (libJUCE PRIVATE "JUCE_DLL_BUILD=1" ${DMDA_PRIVATE_DEF} ${MACKIE_PRIVATE_DEF})
-target_compile_definitions (libJUCE PUBLIC "JUCE_DLL=1" ${DMDA_PUBLIC_DEF} ${MACKIE_PUBLIC_DEF})
-if (MSVC)
-	target_compile_definitions (libJUCE PUBLIC "JUCE_DISABLE_DLL_ALLOCATORS=1")
-endif (MSVC)
+	target_compile_definitions (${TARGET} PRIVATE "JUCE_DLL_BUILD=1" ${DMDA_PRIVATE_DEF} ${MACKIE_PRIVATE_DEF})
+	target_compile_definitions (${TARGET} PUBLIC "JUCE_DLL=1" ${DMDA_PUBLIC_DEF} ${MACKIE_PUBLIC_DEF})
+	if (MSVC)
+		target_compile_definitions (${TARGET} PUBLIC "JUCE_DISABLE_DLL_ALLOCATORS=1")
+	endif (MSVC)
 
-if (GNU OR MINGW)
-	target_compile_definitions (libJUCE PUBLIC "JUCE_USE_DIRECTWRITE=0")
-endif (GNU OR MINGW)
+	if (GNU OR MINGW)
+		target_compile_definitions (${TARGET} PUBLIC "JUCE_USE_DIRECTWRITE=0")
+	endif (GNU OR MINGW)
 
-target_compile_definitions (libJUCE PUBLIC "JUCE_MODAL_LOOPS_PERMITTED=1" "JUCE_CATCH_UNHANDLED_EXCEPTIONS=1")
+	target_compile_definitions (${TARGET} PUBLIC "JUCE_MODAL_LOOPS_PERMITTED=1" "JUCE_CATCH_UNHANDLED_EXCEPTIONS=1")
 
-if (JUCE_DISABLE_LEAK_DETECTOR)
-	target_compile_definitions (libJUCE PUBLIC "JUCE_CHECK_MEMORY_LEAKS=0")
-endif (JUCE_DISABLE_LEAK_DETECTOR)
-
+	if (JUCE_DISABLE_LEAK_DETECTOR)
+		target_compile_definitions (${TARGET} PUBLIC "JUCE_CHECK_MEMORY_LEAKS=0")
+	endif (JUCE_DISABLE_LEAK_DETECTOR)
+endforeach (TARGET ${JUCE_TARGET_LIST})
 
 # ============================
 # Compile Options
 # ============================
+foreach (TARGET ${JUCE_TARGET_LIST})
 if (NOT MSVC)
-	target_compile_options (libJUCE PRIVATE
+	target_compile_options (${TARGET} PRIVATE
 			-pthread
 			-fPIC
 			-fvisibility=hidden
@@ -368,7 +413,7 @@ if (NOT MSVC)
 	)
 
 	if (WIN32)
-		target_link_libraries (libJUCE PRIVATE
+		target_link_libraries (${TARGET} PRIVATE
 			-m64
 			-s
 			-lgdi32
@@ -390,7 +435,7 @@ if (NOT MSVC)
 			-lopengl32
 		)
 	elseif (UNIX AND NOT APPLE)
-		target_link_libraries (libJUCE PRIVATE
+		target_link_libraries (${TARGET} PRIVATE
 			-shared
 			-fvisibility=hidden
 			${RT}
@@ -402,7 +447,7 @@ if (NOT MSVC)
 			${LIBCURL_LIBRARIES}
 		)
 	elseif (APPLE)
-		target_link_libraries (libJUCE PRIVATE
+		target_link_libraries (${TARGET} PRIVATE
 			"-framework Accelerate"
 			"-framework AudioToolbox"
 			"-framework AVFoundation"
@@ -423,7 +468,7 @@ if (NOT MSVC)
 	endif ()
 else (NOT MSVC)
 	if (CMAKE_BUILD_TYPE STREQUAL Debug)
-		target_compile_options (libJUCE PRIVATE
+		target_compile_options (${TARGET} PRIVATE
 			/permissive-#符合模式:是
 			/GS#安全检查:启用安全检查
 			/Zc:wchar_t#将WChar_t视为内置类型:是
@@ -435,7 +480,7 @@ else (NOT MSVC)
 			/nologo#取消显示启动版权标志:是
 			/bigobj#较大生成对象:是
 		)
-		target_link_options (libJUCE PRIVATE
+		target_link_options (${TARGET} PRIVATE
 			/MANIFEST#生成清单:是
 			/NXCOMPAT#数据执行保护(DEP):是
 			/DYNAMICBASE#随机基址:是
@@ -445,7 +490,7 @@ else (NOT MSVC)
 			/NOLOGO#取消显示启动版权标志:是
 		)
 	else (CMAKE_BUILD_TYPE STREQUAL Debug)
-		target_compile_options (libJUCE PRIVATE
+		target_compile_options (${TARGET} PRIVATE
 			/permissive-#符合模式:是
 			/GS#安全检查:启用安全检查
 			/GL#全程序优化:是
@@ -460,7 +505,7 @@ else (NOT MSVC)
 			/nologo#取消显示启动版权标志:是
 			/bigobj#较大生成对象:是
 		)
-		target_link_options (libJUCE PRIVATE
+		target_link_options (${TARGET} PRIVATE
 			/MANIFEST#生成清单:是
 			/LTCG:incremental#链接时间代码生成:使用快速链接时间代码生成
 			/NXCOMPAT#数据执行保护(DEP):是
@@ -474,20 +519,25 @@ else (NOT MSVC)
 		)
 	endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 endif (NOT MSVC)
+endforeach (TARGET ${JUCE_TARGET_LIST})
 
 # ============================
 # Install
 # ============================
 set (JUCE_CMAKE_CONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${JUCE_INSTALL_NAME})
 
-install (TARGETS libJUCE
-	EXPORT ${JUCE_INSTALL_NAME}Targets
-	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" OPTIONAL
-	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" OPTIONAL
-	ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" OPTIONAL
-)
+foreach (TARGET ${JUCE_TARGET_LIST})
+	install (TARGETS ${TARGET}
+		EXPORT ${JUCE_INSTALL_NAME}Targets
+		RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" OPTIONAL
+		LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" OPTIONAL
+		ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" OPTIONAL
+	)
 
-install (FILES $<TARGET_PDB_FILE:libJUCE> DESTINATION "${CMAKE_INSTALL_BINDIR}" OPTIONAL)
+	if (MSVC)
+		install (FILES $<TARGET_PDB_FILE:${TARGET}> DESTINATION "${CMAKE_INSTALL_BINDIR}" OPTIONAL)
+	endif (MSVC)
+endforeach (TARGET ${JUCE_TARGET_LIST})
 
 foreach (ITEM ${JUCE_PUBLIC_INC_PATH})
 	file (GLOB_RECURSE HDR_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${ITEM}/*.h")
