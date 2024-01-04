@@ -1,22 +1,22 @@
 [submodule "JUCE"]
 	path = JUCE
-	url = https://github.com/juce-framework/JUCE.git
+	url = ../../juce-framework/JUCE.git
 	branch = develop
 [submodule "vst3sdk/base"]
 	path = vst3sdk/base
-	url = https://github.com/steinbergmedia/vst3_base.git
+	url = ../../steinbergmedia/vst3_base.git
 [submodule "vst3sdk/public.sdk"]
 	path = vst3sdk/public.sdk
-	url = https://github.com/steinbergmedia/vst3_public_sdk.git
+	url = ../../steinbergmedia/vst3_public_sdk.git
 [submodule "vst3sdk/pluginterfaces"]
 	path = vst3sdk/pluginterfaces
-	url = https://github.com/steinbergmedia/vst3_pluginterfaces.git
+	url = ../../steinbergmedia/vst3_pluginterfaces.git
 [submodule "vst2-sdk-for-vst3sdk"]
 	path = vst2-sdk-for-vst3sdk
-	url = https://github.com/Do-sth-sharp/vst2-sdk-for-vst3sdk.git
+	url = ../../Do-sth-sharp/vst2-sdk-for-vst3sdk.git
 [submodule "libDMDA"]
 	path = libDMDA
-	url = https://github.com/Do-sth-sharp/libDMDA.git
+	url = ../../Do-sth-sharp/libDMDA.git
 [submodule "libMackieControl"]
 	path = libMackieControl
-	url = https://github.com/Do-sth-sharp/libMackieControl.git
+	url = ../../Do-sth-sharp/libMackieControl.git
