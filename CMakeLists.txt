@@ -253,7 +253,6 @@ set (JUCE_AUDIO_SRC
 		"${JUCE_HEADER_PATH}/include_juce_audio_formats.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_audio_processors.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_audio_utils.cpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/AudioFix.cpp"
 )
 set (JUCE_CORE_SRC
 		"${JUCE_HEADER_PATH}/JuceHeader.h"
@@ -276,20 +275,22 @@ set (JUCE_DSP_SRC
 		"${JUCE_HEADER_PATH}/include_juce_dsp.cpp"
 )
 
-add_library (juce-audio SHARED ${JUCE_AUDIO_SRC} ${JUCE_LV2_SRC_FIX} ${JUCE_ARA_SRC_FIX} ${DMDA_SRC} ${MACKIE_SRC})
+set (JUCE_TARGET_LIST "")
 add_library (juce-core SHARED ${JUCE_CORE_SRC})
-add_library (juce-dsp SHARED ${JUCE_DSP_SRC})
+list (APPEND JUCE_TARGET_LIST juce-core)
+if (NOT MINGW)
+	# Too many exported symbols to MinGW ld.exe
+	add_library (juce-full SHARED ${JUCE_CORE_SRC} ${JUCE_DSP_SRC} ${JUCE_AUDIO_SRC}
+			${JUCE_LV2_SRC_FIX} ${JUCE_ARA_SRC_FIX} ${DMDA_SRC} ${MACKIE_SRC})
+	list (APPEND JUCE_TARGET_LIST juce-full)
+endif (NOT MINGW)
+add_library (juce-core-static STATIC ${JUCE_CORE_SRC})
+list (APPEND JUCE_TARGET_LIST juce-core-static)
+add_library (juce-full-static STATIC ${JUCE_CORE_SRC} ${JUCE_DSP_SRC} ${JUCE_AUDIO_SRC}
+		${JUCE_LV2_SRC_FIX} ${JUCE_ARA_SRC_FIX} ${DMDA_SRC} ${MACKIE_SRC})
+list (APPEND JUCE_TARGET_LIST juce-full-static)
 
 set_source_files_properties ("${JUCE_HEADER_PATH}/JuceHeader.h" PROPERTIES HEADER_FILE_ONLY TRUE)
-
-target_link_libraries (juce-audio PUBLIC juce-core)
-target_link_libraries (juce-dsp PUBLIC juce-audio)
-
-set (JUCE_TARGET_LIST
-	juce-audio
-	juce-core
-	juce-dsp
-)
 
 foreach (TARGET ${JUCE_TARGET_LIST})
 	foreach (ITEM ${JUCE_PUBLIC_INC_PATH})
@@ -383,11 +384,14 @@ foreach (TARGET ${JUCE_TARGET_LIST})
 
 	target_compile_definitions (${TARGET} PUBLIC ${JUCE_MODULE_DEF})
 
-	target_compile_definitions (${TARGET} PRIVATE "JUCE_DLL_BUILD=1" ${DMDA_PRIVATE_DEF} ${MACKIE_PRIVATE_DEF})
-	target_compile_definitions (${TARGET} PUBLIC "JUCE_DLL=1" ${DMDA_PUBLIC_DEF} ${MACKIE_PUBLIC_DEF})
-	if (MSVC)
-		target_compile_definitions (${TARGET} PUBLIC "JUCE_DISABLE_DLL_ALLOCATORS=1")
-	endif (MSVC)
+	string (REGEX MATCH "[a-zA-z0-9_-]+-static$" TARGET_END ${TARGET})
+	if (NOT TARGET_END)
+		target_compile_definitions (${TARGET} PRIVATE "JUCE_DLL_BUILD=1" ${DMDA_PRIVATE_DEF} ${MACKIE_PRIVATE_DEF})
+		target_compile_definitions (${TARGET} PUBLIC "JUCE_DLL=1" ${DMDA_PUBLIC_DEF} ${MACKIE_PUBLIC_DEF})
+		if (MSVC)
+			target_compile_definitions (${TARGET} PUBLIC "JUCE_DISABLE_DLL_ALLOCATORS=1")
+		endif (MSVC)
+	endif (NOT TARGET_END)
 
 	if (GNU OR MINGW)
 		target_compile_definitions (${TARGET} PUBLIC "JUCE_USE_DIRECTWRITE=0")
@@ -409,35 +413,34 @@ if (NOT MSVC)
 			-pthread
 			-fPIC
 			-fvisibility=hidden
+			-fvisibility-inlines-hidden
 			"-Wa,-mbig-obj"
+	)
+	target_link_options (${TARGET} PRIVATE
+			-shared
+			-fvisibility=hidden
+			-fvisibility-inlines-hidden
 	)
 
 	if (WIN32)
 		target_link_libraries (${TARGET} PRIVATE
 			-m64
 			-s
-			-lgdi32
-			-luser32
-			-lkernel32
 			-lcomctl32
 			-lwinmm
-			-luuid
 			-lwsock32
 			-lwininet
 			-lversion
-			-lole32
 			-lws2_32
 			-loleaut32
 			-limm32
-			-lcomdlg32
 			-lshlwapi
 			-lrpcrt4
 			-lopengl32
+			-ldxgi
 		)
 	elseif (UNIX AND NOT APPLE)
 		target_link_libraries (${TARGET} PRIVATE
-			-shared
-			-fvisibility=hidden
 			${RT}
 			${DL}
 			${PTHREAD}
