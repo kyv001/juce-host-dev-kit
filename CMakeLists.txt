@@ -309,8 +309,7 @@ endforeach (TARGET ${JUCE_TARGET_LIST})
 # ============================
 # Definitions
 # ============================
-set (JUCE_DEBUG_DEF "DEBUG=1" "_DEBUG=1")
-set (JUCE_NDEBUG_DEF "NDEBUG=1")
+set (JUCE_DEBUG_DEF "$<$<CONFIG:Debug>:DEBUG=1>" "$<$<CONFIG:Debug>:_DEBUG=1>" "$<$<NOT:$<CONFIG:Debug>>:NDEBUG=1>")
 set (JUCE_LINUX_DEF "LINUX=1")
 set (JUCE_WIN_DEF "")
 set (JUCE_OSX_DEF "")
@@ -368,11 +367,7 @@ set (JUCE_MODULE_DEF
 )
 
 foreach (TARGET ${JUCE_TARGET_LIST})
-	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-		target_compile_definitions (${TARGET} PRIVATE ${JUCE_DEBUG_DEF})
-	else (CMAKE_BUILD_TYPE STREQUAL "Debug")
-		target_compile_definitions (${TARGET} PRIVATE ${JUCE_NDEBUG_DEF})
-	endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	target_compile_definitions (${TARGET} PUBLIC ${JUCE_DEBUG_DEF})
 
 	if (WIN32)
 		target_compile_definitions (${TARGET} PUBLIC ${JUCE_WIN_DEF})
