@@ -368,11 +368,11 @@ set (JUCE_MODULE_DEF
 )
 
 foreach (TARGET ${JUCE_TARGET_LIST})
-	if (CMAKE_BUILD_TYPE STREQUAL Debug)
-		target_compile_definitions (${TARGET} PUBLIC ${JUCE_DEBUG_DEF})
-	else (CMAKE_BUILD_TYPE STREQUAL Debug)
-		target_compile_definitions (${TARGET} PUBLIC ${JUCE_NDEBUG_DEF})
-	endif (CMAKE_BUILD_TYPE STREQUAL Debug)
+	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+		target_compile_definitions (${TARGET} PRIVATE ${JUCE_DEBUG_DEF})
+	else (CMAKE_BUILD_TYPE STREQUAL "Debug")
+		target_compile_definitions (${TARGET} PRIVATE ${JUCE_NDEBUG_DEF})
+	endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 	if (WIN32)
 		target_compile_definitions (${TARGET} PUBLIC ${JUCE_WIN_DEF})
