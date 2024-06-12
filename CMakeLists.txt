@@ -181,25 +181,21 @@ if (JUCE_PLUGINHOST_VST3 AND JUCE_CUSTOM_VST3_SDK)
 	endif (DEFINED VST3_SDK_PATH)
 endif (JUCE_PLUGINHOST_VST3 AND JUCE_CUSTOM_VST3_SDK)
 if (JUCE_PLUGINHOST_LV2)
-	if (DEFINED LV2_SDK_PATH)
-		set (JUCE_LV2_INC_PATH ${LV2_SDK_PATH})
-	else (DEFINED LV2_SDK_PATH)
-		#LV2 SDK Path
-		set (JUCE_LV2_INC_PATH
-			"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK"
-			"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/lv2"
-			"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/lilv"
-			"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/lilv/src"
-			"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/serd"
-			"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/sord"
-			"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/sord/src"
-			"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/sratom"
-		)
-	endif (DEFINED LV2_SDK_PATH)
+	#LV2 SDK Path
+	set (JUCE_LV2_INC_PATH
+		"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK"
+		"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/lv2"
+		"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/lilv"
+		"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/lilv/src"
+		"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/serd"
+		"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/sord"
+		"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/sord/src"
+		"${JUCE_INC_PATH}/juce_audio_processors/format_types/LV2_SDK/sratom"
+	)
 
 	#LV2 SDK Src
 	set (JUCE_LV2_SRC_FIX
-		"${JUCE_INC_PATH}/juce_audio_processors/juce_audio_processors_lv2_libs.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_audio_processors_lv2_libs.cpp"
 	)
 endif (JUCE_PLUGINHOST_LV2)
 if (JUCE_PLUGINHOST_ARA)
@@ -211,7 +207,7 @@ if (JUCE_PLUGINHOST_ARA)
 
 	#ARA SDK Src
 	set (JUCE_ARA_SRC_FIX
-		"${JUCE_INC_PATH}/juce_audio_processors/juce_audio_processors_ara.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_audio_processors_ara.cpp"
 	)
 endif (JUCE_PLUGINHOST_ARA)
 
@@ -257,18 +253,21 @@ set (JUCE_AUDIO_SRC
 set (JUCE_CORE_SRC
 		"${JUCE_HEADER_PATH}/JuceHeader.h"
 		"${JUCE_HEADER_PATH}/include_juce_core.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_core_CompilationTime.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_cryptography.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_gui_basics.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_gui_extra.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_events.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_data_structures.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_graphics.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_graphics_Harfbuzz.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_osc.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_box2d.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_opengl.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_analytics.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_product_unlocking.cpp"
 		"${JUCE_HEADER_PATH}/include_juce_video.cpp"
+		"${JUCE_HEADER_PATH}/include_juce_animation.cpp"
 )
 set (JUCE_DSP_SRC
 		"${JUCE_HEADER_PATH}/JuceHeader.h"
@@ -471,7 +470,7 @@ else (NOT MSVC)
 			/GS#安全检查:启用安全检查
 			/Zc:wchar_t#将WChar_t视为内置类型:是
 			/Gm-#启用最小重新生成:否
-			/sdl#SDL检查:是
+			/sdl-#SDL检查:否
 			/fp:precise#浮点模型:精度
 			/Zc:forScope#强制For循环范围中的合规性:是
 			/Gd#调用约定:__cdecl
@@ -495,7 +494,7 @@ else (NOT MSVC)
 			/Gy#启用函数级链接:是
 			/Zc:wchar_t#将WChar_t视为内置类型:是
 			/Gm-#启用最小重新生成:否
-			/sdl#SDL检查:是
+			/sdl-#SDL检查:否
 			/fp:precise#浮点模型:精度
 			/Zc:forScope#强制For循环范围中的合规性:是
 			/Gd#调用约定:__cdecl
