@@ -20,3 +20,6 @@
 [submodule "libMackieControl"]
 	path = libMackieControl
 	url = ../../Do-sth-sharp/libMackieControl.git
+[submodule "ARA_SDK"]
+	path = ARA_SDK
+	url = https://github.com/Celemony/ARA_SDK.git
