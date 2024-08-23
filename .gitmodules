@@ -1,7 +1,3 @@
-[submodule "JUCE"]
-	path = JUCE
-	url = ../../juce-framework/JUCE.git
-	branch = develop
 [submodule "vst3sdk/base"]
 	path = vst3sdk/base
 	url = ../../steinbergmedia/vst3_base.git
@@ -23,3 +19,6 @@
 [submodule "ARA_SDK"]
 	path = ARA_SDK
 	url = https://github.com/Celemony/ARA_SDK.git
+[submodule "JUCE"]
+	path = JUCE
+	url = https://github.com/Do-sth-sharp/JUCE-Fixed.git
