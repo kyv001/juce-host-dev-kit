@@ -22,3 +22,6 @@
 [submodule "JUCE"]
 	path = JUCE
 	url = https://github.com/Do-sth-sharp/JUCE-Fixed.git
+[submodule "ARAExtension"]
+	path = ARAExtension
+	url = https://github.com/Do-sth-sharp/ARAExtension.git
