@@ -10,9 +10,6 @@
 [submodule "vst2-sdk-for-vst3sdk"]
 	path = vst2-sdk-for-vst3sdk
 	url = ../../Do-sth-sharp/vst2-sdk-for-vst3sdk.git
-[submodule "libDMDA"]
-	path = libDMDA
-	url = ../../Do-sth-sharp/libDMDA.git
 [submodule "libMackieControl"]
 	path = libMackieControl
 	url = ../../Do-sth-sharp/libMackieControl.git
