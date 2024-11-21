@@ -402,8 +402,16 @@ if (NOT MSVC)
 			-pthread
 			-fvisibility=hidden
 			-fvisibility-inlines-hidden
-			"-Wa,-mbig-obj"
 	)
+	if (CMAKE_COMPILER_IS_GNUCXX)
+		include(CheckCXXCompilerFlag)
+		check_cxx_compiler_flag("-Wa,-mbig-obj" HAS_BIG_OBJ_FLAG)
+		if (HAS_BIG_OBJ_FLAG) # "-Wa,-mbig-obj" is not supported by gcc on Linux
+			target_compile_options (${TARGET} PRIVATE
+					"-Wa,-mbig-obj"
+			)
+		endif ()
+	endif ()
 	if (NOT (("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang") AND WIN32))
 		target_compile_options (${TARGET} PRIVATE -fPIC)
 	endif ()
