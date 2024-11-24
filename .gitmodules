@@ -18,7 +18,7 @@
 	url = https://github.com/Celemony/ARA_SDK.git
 [submodule "JUCE"]
 	path = JUCE
-	url = https://github.com/Do-sth-sharp/JUCE-Fixed.git
+	url = https://github.com/kyv001/JUCE-Fixed.git
 [submodule "ARAExtension"]
 	path = ARAExtension
 	url = https://github.com/Do-sth-sharp/ARAExtension.git
